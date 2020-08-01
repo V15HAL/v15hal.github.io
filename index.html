@@ -1,1 +1,117 @@
-Hello World
+<html>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <style>
+        circle {fill : lightblue; stroke : black;}
+
+        rect {fill : lightblue; stroke : black; }
+
+        polyline {fill : none;stroke : red;stroke-width : 2}
+    </style>
+    <body onload='init()'>
+        Comparing MPG Across various Cars for the year 2017 (dataset: https://flunky.github.io/cars2017.csv).
+        <br/>
+        <br/>
+        Criterion:
+        <select name="type" id="select_type">
+            <option value="cylinder">By No. of Cylinders</option>
+            <option value="fuel">By Fuel Type</option>
+            <option value="make">By Car Make/Model</option>
+        </select>
+        <br/>
+        <svg width=500 height=500>
+        </svg>
+        <script>
+            async function init() {
+                var width = 400;
+                var height = 400;
+                var margin = 50;
+                var logScalex = d3.scaleLog().domain([5, 150]).range([0, width]);
+                var logScaley = d3.scaleLog().domain([5, 150]).range([height, 0]);
+                data = d3.csv("https://flunky.github.io/cars2017.csv")
+                    .then(function (data) {
+                        var svg = d3.select('svg');
+                        var annotation_text = ["Electric cars (zero cyliner) have higher MPG value"];
+                        var annotation_line = ["100,90 100,50 320,50 320,10 325,10 320,10 320,90 325,90"];
+                        svg
+                            .append("g")
+                            .attr("transform", "translate(" + margin + "," + margin + ")")
+                            .selectAll('circle')
+                            .data(data)
+                            .enter()
+                            .append('circle')
+                            .attr('cx', function (d) {
+                                return logScalex(d.AverageCityMPG);
+                            })
+                            .attr('cy', function (d) {
+                                return logScaley(d.AverageHighwayMPG);
+                            })
+                            .attr('r', function (d) {
+                                return (+d.EngineCylinders + 1);
+                            });
+
+                        // add annotation
+                        svg
+                            .append("g")
+                            .attr("transform", "translate(" + margin + "," + margin + ")")
+                            .selectAll("text")
+                            .data(annotation_text)
+                            .enter()
+                            .append("text")
+                            .attr('x', 50)
+                            .attr('y', 100)
+                            .attr('font-family', "sans-serif")
+                            .attr('font-size', "10px")
+                            .attr('fill', "red")
+                            .html(annotation_text);
+                        // add polyline
+                        svg
+                            .append("g")
+                            .attr("transform", "translate(" + margin + "," + margin + ")")
+                            .selectAll("polyline")
+                            .data(annotation_line)
+                            .enter()
+                            .append("polyline")
+                            .attr("points", annotation_line);
+
+                        var xAxis = d3.axisBottom(logScalex)
+                            .tickValues([5, 10, 20, 50, 100, 150])
+                            .tickFormat(d3.format("~s"));
+
+                        var yAxis = d3.axisLeft(logScaley)
+                            .tickValues([5, 10, 20, 50, 100, 150])
+                            .tickFormat(d3.format("~s"));
+                        // add x axis label
+                        svg
+                            .append("g")
+                            .attr("transform", "translate(" + (margin + (width / 2)) + "," + (height + margin + (margin / 1.5)) + ")")
+                            .append("text")
+                            .style("text-anchor", "middle")
+                            .text("Average City MPG");
+                        // add y axis label
+
+                        svg.append("text")
+                            .attr("transform", "rotate(-90)")
+                            .attr("y", 0 - margin)
+                            .attr("x", 0 - (height / 1.8))
+                            .attr("dy", "4em")
+                            .style("text-anchor", "middle")
+                            .text("Average Highway MPG");
+
+                        svg
+                            .append("g")
+                            .attr("transform", "translate(" + margin + "," + margin + ")")
+                            .call(yAxis);
+
+                        svg
+                            .append("g")
+                            .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                            .call(xAxis);
+
+                    })
+                    .catch(function () {
+                        console.log("error loading file");
+                    });
+            }
+        </script>
+    </body>
+</html>
