@@ -76,6 +76,7 @@
                     d3.selectAll("svg > *").remove();
                     d3.selectAll("#car_make_div").style("visibility", "visible");
                     d3.selectAll("#fuel_legend_div").style("visibility", "hidden");
+                    d3.select('#tooltip').remove();
                     annotation_text = ["Cars with Zero Cylinder have higher MPG value"];
                     annotation_line = ["100,90 100,50 320,50 320,10 325,10 320,10 320,90 325,90"];
                     d3.select("#car_make")
@@ -99,7 +100,7 @@
                             }
                         });
                     }
-
+                    d3.select('body').append('div').attr('id', 'tooltip').attr('style', 'position: absolute; opacity: 0;');
                     svg
                         .append("g")
                         .attr("transform", "translate(" + margin + "," + margin + ")")
@@ -118,7 +119,18 @@
                         })
                         .style('fill', function (d) {
                             return color[d.Fuel]
-                        });
+                        })
+                        .on('mouseover', function (d) {
+                            d3.select('#tooltip').transition().duration(200).style('opacity', 1).text(
+                                d.Make + " with " + d.EngineCylinders + " Cylinders and " + d.Fuel + " Fuel.")
+                        })
+                        .on('mouseout', function () {
+                            d3.select('#tooltip').style('opacity', 0)
+                        })
+                        .on('mousemove', function () {
+                            d3.select('#tooltip').style('left', (d3.event.pageX + 10) + 'px').style('top', (d3.event.pageY + 10) + 'px')
+                        })
+                    ;
                     if ("All" === document.getElementById("car_make").value) {
                         // add annotation text
                         svg
@@ -180,9 +192,10 @@
                     d3.selectAll("svg > *").remove();
                     d3.selectAll("#car_make_div").style("visibility", "hidden");
                     d3.selectAll("#fuel_legend_div").style("visibility", "visible");
+                    d3.select('#tooltip').remove();
                     annotation_text = ["Gasoline and Diesel cars are less fuel efficient than electric"];
                     annotation_line = ["100,120 145,175 210,120 215,125 210,120 68,240 72,245"];
-
+                    d3.select('body').append('div').attr('id', 'tooltip').attr('style', 'position: absolute; opacity: 0;');
                     svg
                         .append("g")
                         .attr("transform", "translate(" + margin + "," + margin + ")")
@@ -198,9 +211,20 @@
                         })
                         .attr('r', function (d) {
                             return (3);
-                        }).style('fill', function (d, i) {
-                        return color[d.Fuel];
-                    });
+                        })
+                        .style('fill', function (d, i) {
+                            return color[d.Fuel];
+                        })
+                        .on('mouseover', function (d) {
+                            d3.select('#tooltip').transition().duration(200).style('opacity', 1).text(
+                                d.Make + " with " + d.EngineCylinders + " Cylinders and " + d.Fuel + " Fuel.")
+                        })
+                        .on('mouseout', function () {
+                            d3.select('#tooltip').style('opacity', 0)
+                        })
+                        .on('mousemove', function () {
+                            d3.select('#tooltip').style('left', (d3.event.pageX + 10) + 'px').style('top', (d3.event.pageY + 10) + 'px')
+                        });
 
                     // add annotation text
                     svg
